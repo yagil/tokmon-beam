@@ -1,6 +1,6 @@
-# tokmon Beam server
+# tokmon beam
 
-A server that listens for beamed [tokmon](https://github.com/yagil/tokmon) JSON blobs, saves them in a local database, and serves a web UI to explore them.
+A Beam server is a program that listens for incoming [tokmon](https://github.com/yagil/tokmon) JSON blobs, and serves a web UI to explore usage data using Next.js and TypeScript.
 
 ## Features
 
@@ -21,15 +21,15 @@ cd tokmon-beam
 
 3. Install the required dependencies:
 ```
-pip install -r requirements.txt
+npm install
 ```
 
 ## Usage
 
-1. Start the server:
+1. Start the development server:
 
 ```
-python server.py
+npm run dev
 ```
 
 2. In your `tokmon` CLI, use the `--beam` option to send data to the server:
@@ -45,5 +45,5 @@ tokmon \
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache-2.0 License. See the [LICENSE](LICENSE) file for details.
 
