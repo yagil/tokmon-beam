@@ -2,18 +2,22 @@ version: '3.8'
 services:
   app:
     build: .
+    image: tokmon-beam
     ports:
       - '${BEAM_SERVER_PORT}:${BEAM_SERVER_PORT}'
     depends_on:
-      - db
+      db:
+        condition: service_started
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public
       BEAM_SERVER_PORT: ${BEAM_SERVER_PORT}
+    volumes:
+      - .:/app
 
   db:
-    image: postgres
+    image: postgres:latest
     env_file:
       - .env
     environment:
@@ -23,7 +27,12 @@ services:
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data`
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres-data:

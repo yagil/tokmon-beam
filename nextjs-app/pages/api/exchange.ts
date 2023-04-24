@@ -5,7 +5,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     const chatExchange = req.body;
     // Validate chatExchange data here
-    console.log('chatExchange: ', chatExchange);
+    console.log('chatExchange: ', JSON.stringify(chatExchange, null, 2));
 
     // Find an existing tokenUsageSummary
     const existingTokenUsageSummary = await prisma.tokenUsageSummary.findFirst({

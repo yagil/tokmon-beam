@@ -4,7 +4,8 @@ import prisma from '@/lib/prisma';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const tokenUsageSummary = req.body.summary;
-    
+    console.log('tokenUsageSummary: ', JSON.stringify(tokenUsageSummary, null, 2));
+
     let savedTokenUsageSummary;
 
     // Find an existing tokenUsageSummary

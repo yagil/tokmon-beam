@@ -1,5 +1,5 @@
 # Use the official Node.js image as the base image
-FROM node:18
+FROM node:alpine
 
 # Set the working directory
 WORKDIR /app
@@ -7,8 +7,17 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
+# Copy prisma folder to the working directory
+COPY prisma ./prisma/
+
+# Copy .env file to the working directory
+COPY .env ./
+
 # Install dependencies
 RUN npm install
+
+# # Generate prisma client
+# RUN npx prisma generate
 
 # Copy the rest of the application code to the working directory
 COPY . .
