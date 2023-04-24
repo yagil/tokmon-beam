@@ -1,0 +1,47 @@
+[{
+    "tokmon_conversation_id": "f601c2ae-d104-4f76-bc70-db77cda3a47d",
+    "request": {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You're a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": "hi"
+            }
+        ],
+        "stream": false,
+        "temperature": 0
+    },
+    "response": {
+        "model": "gpt-3.5-turbo-0301",
+        "messages": [
+            {
+                "role": "assistant",
+                "content": "Hello! How can I assist you today?"
+            }
+        ],
+        "usage": {
+            "prompt_tokens": 20,
+            "completion_tokens": 9,
+            "total_tokens": 29
+        }
+    }
+},
+{
+    "summary": {
+        "tokmon_conversation_id": "f601c2ae-d104-4f76-bc70-db77cda3a47d",
+        "total_cost": 5.8e-05,
+        "total_usage": {
+            "total_prompt_tokens": 20,
+            "total_completion_tokens": 9,
+            "total_tokens": 29
+        },
+        "pricing_data": "{'gpt-3.5-turbo-0301': {'prompt_cost': 0.002, 'completion_cost': 0.002, 'per_tokens': 1000}}",
+        "models": [
+            "gpt-3.5-turbo-0301"
+        ]
+    }
+}]

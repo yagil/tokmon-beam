@@ -1,4 +1,5 @@
 # tokmon beam
+<<<<<<< HEAD
 
 A Beam server is a program that listens for incoming [tokmon](https://github.com/yagil/tokmon) JSON blobs, and serves a web UI to explore usage data using Next.js and TypeScript.
 
@@ -47,3 +48,5 @@ tokmon \
 
 This project is licensed under the Apache-2.0 License. See the [LICENSE](LICENSE) file for details.
 
+=======
+>>>>>>> 3f17fc7 (basic nextjs app + prisma (postgres) database)

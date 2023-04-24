@@ -1,0 +1,29 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ChatExchange {
+  id                     String           @id @default(uuid())
+  timestamp              DateTime         @default(now())
+  tokmon_conversation_id String           
+  request                Json
+  response               Json
+  tokenUsageSummaryId    String
+  tokenUsageSummary      TokenUsageSummary @relation(fields: [tokenUsageSummaryId], references: [id])
+}
+
+model TokenUsageSummary {
+  id                     String         @id @default(uuid())
+  timestamp              DateTime       @default(now())
+  tokmon_conversation_id String         @unique
+  total_cost             Float
+  total_usage            Json
+  pricing_data           Json
+  models                 String[]
+  chatExchanges          ChatExchange[]
+}

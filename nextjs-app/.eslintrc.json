@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+],
+  "rules": {
+      "indent": ["error", 4],
+      "semi": ["error", "always"],
+      "@typescript-eslint/semi": ["error", "always"],
+  }
+}
