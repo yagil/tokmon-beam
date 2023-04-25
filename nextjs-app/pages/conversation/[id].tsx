@@ -74,8 +74,8 @@ export default function Conversation({ wssPort }: ConversationProps) {
         <h1 className="text-xl font-medium mb-5"> Usage Summary</h1>
         <pre>
           {summary && 
-          // a little table that shows total_cost,id, tokmon_conversation_id, total_usage, pricing_data, models
           <>
+            <h2>{summary.monitored_program}</h2>
             <table>
               <thead>
                 <tr className="flex gap-10">

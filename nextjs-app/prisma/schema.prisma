@@ -22,6 +22,7 @@ model TokenUsageSummary {
   id                     String         @id @default(uuid())
   timestamp              DateTime       @default(now())
   tokmon_conversation_id String         @unique
+  monitored_program      String
   total_cost             Float
   total_usage            Json
   pricing_data           Json

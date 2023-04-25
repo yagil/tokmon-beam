@@ -5,11 +5,13 @@ import prisma from '../../lib/prisma';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const chatExchange = req.body;
+    const rollingUsageSummary = chatExchange.summary;
+
     // Validate chatExchange data here
     console.log('chatExchange: ', JSON.stringify(chatExchange, null, 2));
 
-    // Find an existing tokenUsageSummary
-    const existingTokenUsageSummary = await prisma.tokenUsageSummary.findFirst({
+    // Find the existing tokenUsageSummary, or create a new one
+    let tokenUsageSummary = await prisma.tokenUsageSummary.findFirst({
       where: {
         chatExchanges: {
           some: {
@@ -19,22 +21,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
 
-    let tokenUsageSummaryId;
-
-    if (!existingTokenUsageSummary) {
+    if (!tokenUsageSummary) {
       // Create a new tokenUsageSummary
-      const newTokenUsageSummary = await prisma.tokenUsageSummary.create({
+      tokenUsageSummary = await prisma.tokenUsageSummary.create({
         data: {
-          tokmon_conversation_id: chatExchange.tokmon_conversation_id,
-          total_cost: 0, // Replace with the actual cost
-          total_usage: {}, // Replace with the actual usage data
-          pricing_data: {}, // Replace with the actual pricing data
-          models: [], // Replace with the actual models array
+          ...rollingUsageSummary
         },
       });
-      tokenUsageSummaryId = newTokenUsageSummary.id;
+
     } else {
-      tokenUsageSummaryId = existingTokenUsageSummary.id;
+      tokenUsageSummary = await prisma.tokenUsageSummary.update({
+        where: {
+          id: tokenUsageSummary.id,
+        },
+        data: {
+          ...rollingUsageSummary
+        },
+      });
     }
 
     if (chatExchange.tokmon_conversation_id === undefined) {
@@ -47,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         tokmon_conversation_id: chatExchange.tokmon_conversation_id,
         request: chatExchange.request,
         response: chatExchange.response,
-        tokenUsageSummaryId: tokenUsageSummaryId,
+        tokenUsageSummaryId: tokenUsageSummary.id,
       },
     });
 
@@ -56,6 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     ws.onopen = () => {
       ws.send(JSON.stringify({ type: 'chatExchange', data: savedChatExchange }));
+      ws.send(JSON.stringify({ type: 'tokenUsageSummary', data: tokenUsageSummary }));
       ws.close();
     };
 

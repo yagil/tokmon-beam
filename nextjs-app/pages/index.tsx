@@ -74,6 +74,7 @@ export default function Index({ wssPort } : IndexProps) {
         <thead>
           <tr>
             <th className="border p-2">Timestamp</th>
+            <th className="border p-2">Program</th>
             <th className="border p-2">Conversation ID</th>
             <th className="border p-2">Total Cost</th>
             <th className="border p-2">Actions</th>
@@ -83,6 +84,7 @@ export default function Index({ wssPort } : IndexProps) {
           {summaries.map((summary) => (
             <tr key={summary.id}>
               <td className="border p-2">{formatDate(summary.timestamp)}</td>
+              <td className="border p-2">{summary.monitored_program}</td>
               <td
                 className="border p-2 cursor-pointer hover:underline"
                 onClick={() => router.push(`/conversation/${summary.tokmon_conversation_id}`)}
