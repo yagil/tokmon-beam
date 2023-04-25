@@ -14,6 +14,10 @@ All token data             |  Single chat view
 - Runs on localhost
 
 ## Setup
+0. Install `tokmon` from PyPi
+```bash
+pip install tokmon
+```
 
 1. Clone the repository:
 ```bash
