@@ -16,9 +16,6 @@ COPY .env ./
 # Install dependencies
 RUN npm install
 
-# # Generate prisma client
-# RUN npx prisma generate
-
 # Copy the rest of the application code to the working directory
 COPY . .
 
