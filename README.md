@@ -50,7 +50,7 @@ $ tokmon --beam <program name> [arg1] [arg2] ...
 Data will update in real time in the web UI.
 
 ## Components
-- NextJS app
+- NextJS app (web UI + listening for incoming JSON blobs from `tokmon`)
 - PostgreSQL database
 - Websocket server for real time UI updates
 
