@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   app:
+    container_name: tokmon-beam
     build: .
     image: tokmon-beam
     ports:
@@ -13,8 +14,10 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public
       BEAM_SERVER_PORT: ${BEAM_SERVER_PORT}
-    volumes:
-      - .:/app
+    # Uncomment the following lines if you want to use local files instead of the image
+    # Depending on your OS, you might also need to edit 'binaryTargets' in prisma/schema.prisma
+    # volumes: 
+    #   - .:/app
 
   db:
     image: postgres:latest
@@ -27,12 +30,23 @@ services:
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:
-      - postgres-data:/var/lib/postgresql/data`
+      - tokmon-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
 
+  websocket:
+    container_name: ${WSS_CONTAINER_NAME}
+    build: ../websocket-server
+    image: websocket-server
+    ports:
+      - '${WSS_PORT}:${WSS_PORT}'
+    env_file:
+      - .env
+    environment:
+      WSS_PORT: ${WSS_PORT}
+
 volumes:
-  postgres-data:
+  tokmon-postgres-data:

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '@/lib/prisma';
+import WebSocket from 'ws';
+import prisma from '../../lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -50,6 +51,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
 
+    // Send incoming data to the WebSocket server
+    const ws = new WebSocket(`ws://${process.env.WSS_CONTAINER_NAME}:${process.env.WSS_PORT}`);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: 'chatExchange', data: savedChatExchange }));
+      ws.close();
+    };
+
+    ws.onerror = (error) => {
+      console.log(`WebSocket error:`, error);
+    };
+
     res.status(200).json(savedChatExchange);
 
   } else if (req.method === 'GET') {
@@ -65,12 +78,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           include: {
             tokenUsageSummary: true,
           },
+          orderBy: {
+            timestamp: 'desc',
+          },
         });
 
       } else {
         retData = await prisma.chatExchange.findMany({
           include: {
             tokenUsageSummary: true,
+          },
+          orderBy: {
+            timestamp: 'desc',
           },
         });
       }

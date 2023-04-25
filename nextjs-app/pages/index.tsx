@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react';
+import * as React from 'react';
 import { useRouter } from 'next/router';
 import { TokenUsageSummary } from '@prisma/client';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '../lib/utils';
 
 export async function getServerSideProps() {
-  const port = Number(process.env.BEAM_SERVER_PORT);
+  const wssPort = Number(process.env.WSS_PORT);
   
   return {
     props: {
-      port,
+      wssPort
     },
   };
 }
 
 export type IndexProps = {
-  port: number;
+  wssPort: number;
 };
 
-export default function Index({ port } : IndexProps) {
+export default function Index({ wssPort } : IndexProps) {
   const [summaries, setSummaries] = useState<TokenUsageSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +31,24 @@ export default function Index({ port } : IndexProps) {
         console.error('Error fetching summaries:', error)
         setError(error.message);
       });
+
+    const ws = new WebSocket(`ws://localhost:${wssPort}`);
+    ws.onopen = () => {
+      console.log('Connected to websocket server');
+    }
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data.toString());
+      
+      const data = message.data;
+      const type = message.type;
+
+      if (type === 'tokenUsageSummary') {
+        setSummaries((prevSummaries) => [data, ...prevSummaries]);
+      }
+    }
+    return () => {
+      ws.close();
+    }
   }, []);
 
   const deleteSummary = async (id: string) => {

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx prisma migrate dev && next dev --port 9000",
+    "dev": "npx prisma migrate deploy && next dev --port 9000",
     "build": "next build",
     "start": "npx prisma migrate deploy && next start --port 9000",
     "lint": "next lint"

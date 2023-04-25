@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '@/lib/prisma';
+import prisma from '../../lib/prisma';
+import WebSocket from 'ws';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const tokenUsageSummary = req.body.summary;
     console.log('tokenUsageSummary: ', JSON.stringify(tokenUsageSummary, null, 2));
 
-    let savedTokenUsageSummary;
+    let savedTokenUsageSummary: any;
 
     // Find an existing tokenUsageSummary
     const existingTokenUsageSummary = await prisma.tokenUsageSummary.findFirst({
@@ -35,6 +36,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log(`Saved tokenUsageSummary: ${JSON.stringify(savedTokenUsageSummary)}`);
     }
 
+    // Send incoming data to the WebSocket server
+    const ws = new WebSocket(`ws://${process.env.WSS_CONTAINER_NAME}:${process.env.WSS_PORT}`);
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: 'tokenUsageSummary', data: savedTokenUsageSummary }));
+      ws.close();
+    };
+
     res.status(200).json(savedTokenUsageSummary);
 
   } else if (req.method === 'GET') {
@@ -56,6 +64,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         retData = await prisma.tokenUsageSummary.findMany({
           include: {
             chatExchanges: true,
+          },
+          orderBy: {
+            timestamp: 'desc',
           },
         });
       }

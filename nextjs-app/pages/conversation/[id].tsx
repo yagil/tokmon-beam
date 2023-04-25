@@ -1,8 +1,25 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import * as React from 'react';
 import { ChatExchange, TokenUsageSummary } from '@prisma/client';
 
-export default function Conversation() {
+// server side props
+export async function getServerSideProps() {
+  const wssPort = Number(process.env.WSS_PORT);
+
+  return {
+    props: {
+      wssPort,
+    },
+  };
+}
+
+// props
+export type ConversationProps = {
+  wssPort: number;
+};
+
+export default function Conversation({ wssPort }: ConversationProps) {
   const [exchanges, setExchanges] = useState<ChatExchange[]>([]);
   const [summary, setSummary] = useState<TokenUsageSummary|null>(null);
   const router = useRouter();
@@ -19,18 +36,20 @@ export default function Conversation() {
         .then((data) => setSummary(data));
     }
 
-    const ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/api/exchange');
+    const ws = new WebSocket(`ws://localhost:${wssPort}`);
 
     ws.onmessage = (event) => {
-      const data = event.data;
-      const type = event.type;
+      const message = JSON.parse(event.data.toString());
       
-      const exchangeData = JSON.parse(data.toString());
+      const data = message.data;
+      const type = message.type;
 
-      console.log(`**** Received a ${type} event.\nData: ${JSON.stringify(exchangeData)}`);
+      if (data.tokmon_conversation_id !== id) return;
 
-      if (type === 'chatExchange' && exchangeData.tokmon_conversation_id === id) {
-        setExchanges((prevExchanges) => [...prevExchanges, exchangeData]);
+      if (type === 'chatExchange') {
+        setExchanges((prevExchanges) => [data, ...prevExchanges]);
+      } else if (type === 'tokenUsageSummary') {
+        setSummary(data);
       }
     };
 
