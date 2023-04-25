@@ -1,4 +1,8 @@
-export function formatDate(date: Date): string {
+export function formatDate(date: Date): string {  
+    if (date == null) {
+      return "<Date is null>";
+    }
+    
     const now = new Date();
     const delta = now.getTime() - new Date(date).getTime();
     const secondsInMs = 1000;
@@ -26,6 +30,6 @@ export function formatDate(date: Date): string {
       const seconds = Math.floor(delta / secondsInMs);
       return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
     }
-  
+
     return date.toISOString().slice(0, 19).replace('T', ' ');
   }

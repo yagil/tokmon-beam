@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import Head from 'next/head'
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 import { ChatExchange, TokenUsageSummary } from '@prisma/client';
@@ -14,17 +15,84 @@ export async function getServerSideProps() {
   };
 }
 
-// props
 export type ConversationProps = {
   wssPort: number;
 };
+
+function UsageSummaryTable({ summary }: { summary: TokenUsageSummary }) {
+  const { monitored_program, total_cost, total_usage, models } = summary;
+  const { total_tokens, total_prompt_tokens, total_completion_tokens } = total_usage as { total_tokens: number, total_prompt_tokens: number, total_completion_tokens: number};
+
+  return (
+    <>
+      <div className="flex flex-col text-center mb-5 justify-center space-y-5">
+        <h1 className="text-md text-xl font-medium"> Usage Summary</h1>
+        <p className="font-mono text-sm py-1 px-3 bg-indigo-900 text-white rounded-md w-fit mx-auto">{monitored_program}</p>
+      </div>
+      <table className="w-full">
+        <thead className="bg-slate-200">
+          <tr className="text-center">
+            <th className="border border-black p-2">Total cost</th>
+            <th className="border border-black p-2">Models</th>
+            <th className="border border-black p-2">Total tokens</th>
+            <th className="border border-black p-2">Total prompt tokens</th>
+            <th className="border border-black p-2">Total completion tokens</th>
+            
+          </tr>
+        </thead>
+        <tbody className="text-center">
+          <tr id="summary">
+            <td className="border border-black p-2 font-bold bg-emerald-200">${total_cost}</td>
+            <td className="border border-black p-2">{models}</td>
+            <td className="border border-black p-2">{total_tokens}</td>
+            <td className="border border-black p-2">{total_prompt_tokens}</td>
+            <td className="border border-black p-2">{total_completion_tokens}</td>
+            
+          </tr>
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+function ChatExchange({ exchange }: { exchange: ChatExchange}) {
+  const { id, timestamp, request, response } = exchange;
+
+  return (
+    <>
+      <div>
+        <strong>Response:</strong>
+        <pre className="whitespace-break-spaces">{JSON.stringify(response, null, 2)}</pre>
+      </div>
+      <div>
+        <strong>Request:</strong>
+        <pre className="whitespace-break-spaces">{JSON.stringify(request, null, 2)}</pre>
+      </div>
+      </>
+  );
+}
+
+function JsonExportButton({ exchanges, summary, id }: { exchanges: ChatExchange[], summary: TokenUsageSummary|null, id: string }) {
+  return (
+    <button className="underline a-like" onClick={() => {
+      const element = document.createElement('a');
+      
+      const file = new Blob([JSON.stringify(summary, null, 2)], {type: 'application/json'});
+      element.href = URL.createObjectURL(file);
+      element.download = `tokmon-${id}.json`;
+      document.body.appendChild(element);
+      element.click();
+    }}>Export JSON</button>
+  );
+}
 
 export default function Conversation({ wssPort }: ConversationProps) {
   const [exchanges, setExchanges] = useState<ChatExchange[]>([]);
   const [summary, setSummary] = useState<TokenUsageSummary|null>(null);
   const router = useRouter();
-  const { id } = router.query;
-
+  const { id } = router.query as { id: string };
+  const pageTitle = id ? `tokmon explorer • ${id}` : 'tokmon explorer';
+  
   useEffect(() => {
     if (id) {
       fetch(`/api/exchange?tokmon_conversation_id=${id}`)
@@ -50,6 +118,13 @@ export default function Conversation({ wssPort }: ConversationProps) {
         setExchanges((prevExchanges) => [data, ...prevExchanges]);
       } else if (type === 'tokenUsageSummary') {
         setSummary(data);
+        const summaryElement = document.getElementById('summary');
+        if (summaryElement) {
+          summaryElement.classList.add('bg-green-100');
+          setTimeout(() => {
+            summaryElement.classList.remove('bg-green-100');
+          }, 1000);
+        }
       }
     };
 
@@ -58,58 +133,38 @@ export default function Conversation({ wssPort }: ConversationProps) {
     };
   }, [id]);
 
-  return (
-    <div className="container bg-slate-50 w-screen p-10">
-      {/* back button */}
-      <button
-        className="mb-4 underline"
-        onClick={() => router.push('/')}
-      >
-        ← Home
-      </button>
-      <h1 className="py-5 text-2xl font-medium mb-4 flex flex-row gap-x-3">Conversation <pre>{id}</pre></h1>
-      <hr></hr>
-      
-      <div className="py-10 px-5 bg-slate-200 mx-auto w-screen mb-5">
-        <h1 className="text-xl font-medium mb-5"> Usage Summary</h1>
-        <pre>
-          {summary && 
-          <>
-            <h2>{summary.monitored_program}</h2>
-            <table>
-              <thead>
-                <tr className="flex gap-10">
-                  <th>total_cost</th>
-                  <th>total_usage</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="flex gap-4">
-                  <td className="font-bold text-blue-600">${summary.total_cost}</td>
-                  <td>{JSON.stringify(summary.total_usage)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </>
+  
 
-            || 'No summary yet'}
-        </pre>
+  return (
+    <>
+    <Head>
+        <title>{pageTitle}</title>
+    </Head>
+      
+    <div className="flex flex-row justify-between border border-b-1 border-b-gray-300 px-5 mb-5">
+      <div className="flex flex-row space-x-2 py-5">
+        <button className="underline a-like" onClick={() => router.push('/')} > ← All Logs</button>
+        <h1 className="flex flex-row gap-x-2 whitespace-nowrap "> / <pre>{id}</pre></h1>
+      </div>
+    
+      <JsonExportButton exchanges={exchanges} summary={summary} id={id} />
+    </div>
+
+    <div className="px-5">
+      <div className="mb-5">
+          {summary &&  <UsageSummaryTable summary={summary} /> || 'No data yet'}
       </div>
 
-      <hr></hr>
-
-      <ul className="w-screen">
-      {exchanges.map((exchange, index) => (
+      <ul>
+        {exchanges.map((exchange, index) => (
           <li key={index} className={"p-5 flex flex-col space-y-5 odd:bg-gray-200 even:bg-slate-50 "}>
-            <div>
-              <strong>Request:</strong> <pre className="overflow-x-clip">{JSON.stringify(exchange.request)}</pre>
-            </div>
-            <div>
-              <strong>Response:</strong> <pre>{JSON.stringify(exchange.response)}</pre>
-            </div>
+            <ChatExchange exchange={exchange} />
           </li>
         ))}
       </ul>
+
     </div>
+    
+    </>
   );
 }

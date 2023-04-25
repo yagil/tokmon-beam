@@ -34,7 +34,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-nextjs-app/prisma
 nextjs-app/.env
 
 websocket-server/build/*

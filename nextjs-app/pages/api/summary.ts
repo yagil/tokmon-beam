@@ -66,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             chatExchanges: true,
           },
           orderBy: {
-            timestamp: 'desc',
+            updated_at: 'desc',
           },
         });
       }

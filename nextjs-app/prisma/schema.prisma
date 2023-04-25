@@ -20,7 +20,8 @@ model ChatExchange {
 
 model TokenUsageSummary {
   id                     String         @id @default(uuid())
-  timestamp              DateTime       @default(now())
+  created_at             DateTime       @default(now())
+  updated_at             DateTime       @updatedAt @default(now())
   tokmon_conversation_id String         @unique
   monitored_program      String
   total_cost             Float
