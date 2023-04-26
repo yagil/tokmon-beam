@@ -1,15 +1,19 @@
-# `tokmon --beam` 🔤🧐⚡️
+# `tokmon beam` 🔤🧐⚡️
 
-**tokmon beam** (this repo) is a self-hosted, real-time web UI + db for monitoring your program's OpenAI token usage.<br>
+**tokmon beam** is a self-hosted, real-time web UI + db for monitoring your program's OpenAI token usage.<br>
 
 It works together with [`tokmon`](https://github.com/yagil/tokmon), which is a CLI utility you can prepend to your program invocation to monitor its OpenAI API token usage.<br>
 
+## Who is this for?
+If you're developing apps, websites, or scripts that make calls to the OpenAI API, you might be interested in keeping track of how much various flows in your app actually cost.<br>
+
 ## Features
+- Real time web UI for exploring your Open API usage data
 - Store [`tokmon`](https://github.com/yagil/tokmon) JSON data in a Postgres database (local or remote, configurable in the `.env` file)
-- Web UI for exploring usage data (updates in real time)
 - Export data as JSON from the web UI
 - Runs on `localhost`
 
+## Demo
 <div align="center">
   <video src="https://user-images.githubusercontent.com/3611042/234463513-d7a0c074-21a7-426e-a547-2a2f0fba5105.mp4" />
 </div>
@@ -42,12 +46,14 @@ python3 tool.py up
 5. Head to `localhost:9000` in your browser
 
 ## Usage
+> **Warning**
+> This is a debugging tool. It is not intended to be used in any consequential setting. Use your best judgement!
 Setup the tokmon beam stack as described above, and then:
 
 1. Run the `tokmon beam` server if it's not already running:
 
 ```console
-$ cd /path/to/local/repo/tokmon-beam
+$ cd /path/to/local/repo/
 $ python3 tool.py up
 ```
 
