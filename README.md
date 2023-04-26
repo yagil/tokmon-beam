@@ -1,4 +1,5 @@
 # `tokmon beam` 🔤🧐⚡️
+> **Note** This is alpha software under active development. Expect breaking changes.
 
 **tokmon beam** is a self-hosted, real-time web UI + db for monitoring your program's OpenAI token usage.<br>
 
@@ -100,6 +101,8 @@ DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POST
 - Websocket server (for real time updates)
 
 <img width="450" alt="image" src="https://user-images.githubusercontent.com/3611042/234438167-bd6313df-1211-4fbb-8293-a6489247dd17.png">
+
+> Not drawn: `<your program>` making API calls to `https://api.openai.com`
 
 ## License
 
