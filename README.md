@@ -64,12 +64,10 @@ $ tokmon-beam up # optionally run with `-d` to run in detached mode
 $ tokmon --beam localhost:9000 /path/to/your/<program name> [arg1] [arg2] ...
 ```
 
-3. Head to `localhost:9000` in your browser to see the usage data in real time 
+3. Head to [`localhost:9000`](localhost:9000) in your browser to see the usage data in real time.
 
-API usage data (including tokens sent and received) will update in real time in the web UI.
-
-## `nextjs-app/.env`
-
+## Configuration parameters in `nextjs-app/.env`
+You may change the following parameters in the `.env` file:
 ```env
 # The port the NextJS app will run on
 BEAM_SERVER_PORT=9000
