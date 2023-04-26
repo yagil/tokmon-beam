@@ -4,16 +4,15 @@
 
 It works together with [`tokmon`](https://github.com/yagil/tokmon), which is a CLI utility you can prepend to your program invocation to monitor its OpenAI API token usage.<br>
 
-<div align="center">
-  <img valign="middle" src="https://user-images.githubusercontent.com/3611042/234407215-63afba38-6356-4ba6-bba1-4d46acfb72b2.png" width="48%" />
-  <img valign="middle" src="https://user-images.githubusercontent.com/3611042/234406254-d6299348-d428-43ec-8921-c779d7b82b79.png" width="48%" /> 
-</div>
-
 ## Features
 - Store [`tokmon`](https://github.com/yagil/tokmon) JSON data in a Postgres database (local or remote, configurable in the `.env` file)
 - Web UI for exploring usage data (updates in real time)
 - Export data as JSON from the web UI
 - Runs on `localhost`
+
+<div align="center">
+  <video src="https://user-images.githubusercontent.com/3611042/234463513-d7a0c074-21a7-426e-a547-2a2f0fba5105.mp4" />
+</div>
 
 ## Installation
 **Note:** `tokmon beam` uses docker. If you don't have docker on your machine, install it first.
