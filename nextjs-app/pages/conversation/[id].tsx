@@ -96,11 +96,14 @@ function JsonExportButton({ exchanges, summary, id }: { exchanges: ChatExchange[
 export default function Conversation({ wssPort, storedExchanges, storedSummary }: ConversationProps) {
   const [exchanges, setExchanges] = useState<ChatExchange[]>(storedExchanges);
   const [summary, setSummary] = useState<TokenUsageSummary>(storedSummary);
+  const [error, setError] = useState<string|null>(null);
   const router = useRouter();
   const { id } = router.query as { id: string };
   const pageTitle = id ? `tokmon explorer • ${id}` : 'tokmon explorer';
   
   useEffect(() => {
+    setExchanges(storedExchanges);
+    setSummary(storedSummary);
     if (id) {
       fetch(`/api/exchange?tokmon_conversation_id=${id}`)
         .then((res) => res.json())
@@ -140,8 +143,6 @@ export default function Conversation({ wssPort, storedExchanges, storedSummary }
     };
   }, [id]);
 
-  
-
   return (
     <>
     <Head>
@@ -159,11 +160,14 @@ export default function Conversation({ wssPort, storedExchanges, storedSummary }
 
     <div className="px-5">
       <div className="mb-5">
-          {summary &&  <UsageSummaryTable summary={summary} /> || 'No data yet'}
+          {summary &&  <UsageSummaryTable summary={summary} /> || 
+          <div>
+            No data for for this converation ID. Double check the URL.
+          </div>}
       </div>
 
       <ul>
-        {exchanges.map((exchange, index) => (
+        {exchanges && exchanges.map((exchange, index) => (
           <li key={index} className={"p-5 flex flex-col space-y-5 odd:bg-gray-200 even:bg-slate-50 "}>
             <ChatExchange exchange={exchange} />
           </li>

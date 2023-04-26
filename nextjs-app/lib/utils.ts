@@ -1,3 +1,6 @@
+import { ChatExchange } from "@prisma/client";
+import { ChatMessage, ChatResponse } from "./types";
+
 export function formatDate(date: Date): string {  
     if (date == null) {
       return "<Date is null>";
@@ -32,4 +35,21 @@ export function formatDate(date: Date): string {
     }
 
     return date.toISOString().slice(0, 19).replace('T', ' ');
+  }
+
+  export function getLastMessageInChatExchanges(chatExchanges: ChatExchange[]): ChatMessage|null {
+    if (chatExchanges.length === 0) {
+      return null;
+    }
+    
+    const lastExchange = chatExchanges.sort((a, b) => {
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    })[0];
+
+    const response = lastExchange.response as ChatResponse;
+    if (response.messages.length > 0) {
+      const lastMessage = response.messages[response.messages.length - 1];
+      return lastMessage;
+    }
+    return null;
   }

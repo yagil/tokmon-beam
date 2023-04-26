@@ -24,6 +24,10 @@ tr {
   transition: background-color 0.2s ease-in-out;
 }
 
+.a-like {
+  cursor: pointer;
+}
+
 a:hover, .a-like:hover {
   text-decoration: underline;
   color: #6c76bf;
