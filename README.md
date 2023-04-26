@@ -40,13 +40,6 @@ cp nextjs-app/.env.example nextjs-app/.env
 python3 tool.py up
 ```
 
-**Optional:** For convenience, you can create a symlink + alias to easily turn the beam server on and off no matter where you are in the filesystem:
-
-```bash
-# Make sure you're in 'nextjs-app/' folder!
-ln -s $(pwd)/tool.py /usr/local/bin/tokmon-beam
-```
-
 5. Head to `localhost:9000` in your browser
 
 ## Usage
@@ -55,17 +48,20 @@ Setup the tokmon beam stack as described above, and then:
 1. Run the `tokmon beam` server if it's not already running:
 
 ```console
-tokmon-beam up 
+$ cd /path/to/local/repo/tokmon-beam
+$ python3 tool.py up
 ```
 
 2. Head to [`localhost:9000`](localhost:9000) in your browser
 
 3. Run the [`tokmon` CLI](https://github.com/yagil/tokmon) with the `--beam` flag pointing to your tokmon beam server:
 
-```console
-tokmon --beam localhost:9000 /path/to/your/<program name> [arg1] [arg2] ...
+```bash
+tokmon --no_json --beam localhost:9000 /path/to/your/program [arg1] [arg2] ...
 ```
 4. Logs and usage data will appear up in the web UI and update in real time. 
+
+5. Exit the server with `Ctrl^C`. Run `python3 tool.py down` to clean up the docker related resources.
 
 ## Troubleshooting
 Keep an eye on the docker logs for any sign of misconfiguration or bugs.
