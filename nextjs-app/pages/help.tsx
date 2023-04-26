@@ -15,8 +15,8 @@ export default function Help() {
             </div>
         </div>
 
-        <div className="px-20 mb-20">
-            <Instructions />
+        <div className="mb-20">
+            <Instructions onHomeScreen={false}/>
         </div>
 
         <hr></hr>

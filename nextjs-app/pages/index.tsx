@@ -32,27 +32,33 @@ export const TopBar = () => {
       </div>
       <div className="flex flex-row space-x-5">
       <a className="underline block" href="/help">Help</a>
-      <a className="underline block" href="https://github.com/yagil/tokmon" target="_blank" rel="noopener noreferrer">Github</a>
+      <a className="underline block" href="https://github.com/yagil/tokmon-beam" target="_blank" rel="noopener noreferrer">Github</a>
       </div>
   </div>
   )
 }
 
-export const Instructions = () => {
+type InstructionsProps = {
+  onHomeScreen: boolean;
+}
+
+export const Instructions = ({ onHomeScreen } : InstructionsProps) => {
   return (
-    <div className="flex flex-col text-center mb-5 justify-center space-y-5 bg-gray-100 rounded-xl py-10">
+    <div className="flex flex-col text-center mb-5 justify-center space-y-5 bg-gray-100 rounded-xl py-10 max-w-5xl mx-auto">
       <h1 className="text-xl font-medium mb-5">Get started with <b className="font-mono text-indigo-900">tokmon --beam</b> </h1>
       <hr></hr>
-      <p className="py-1 rounded-md md:w-2/5 text-left mx-auto">1. Install <b className="font-mono">tokmon</b> from PyPi</p>
+      <p className="py-1 rounded-md lg:w-4/5 text-left mx-auto">1. Install <b className="font-mono">tokmon</b> from PyPi</p>
       <code>
-        <p className="font-mono text-sm py-3 px-10 lg:w-2/5 bg-indigo-800 lg:rounded-md text-white mx-auto">pip install tokmon</p>
+        <p className="font-mono text-sm py-3 px-10 lg:w-4/5 bg-indigo-800 lg:rounded-md text-white mx-auto">pip install tokmon</p>
       </code>
-      <p className="py-1 md:w-2/5 text-left mx-auto">2. Start <b className="font-mono">tokmon</b> with the <b className="font-mono">--beam</b> flag set</p>
+      <p className="py-1 lg:w-4/5 text-left mx-auto">2. Start <b className="font-mono">tokmon</b> with the <b className="font-mono">--beam</b> flag set</p>
       <code>
-        <p className="font-mono text-sm py-3 px-10 lg:w-2/5 bg-indigo-800 lg:rounded-md text-white  mx-auto">tokmon --beam localhost:9000 /path/to/your/&lt;your program&gt; [arg1] [arg2] ...</p>
+        <p className="font-mono text-sm py-3 px-10 lg:w-4/5 bg-indigo-800 lg:rounded-md text-white  mx-auto">tokmon --beam localhost:9000 /path/to/your/&lt;your program&gt; [arg1] [arg2] ...</p>
       </code>
-      <p className="py-1 md:w-2/5 text-left mx-auto">3. Make OpenAI API calls in your program</p>
-      <p className="py-1 md:w-2/5 text-left mx-auto">4. Watch the conversation appear in the explorer</p>
+      <p className="py-1 lg:w-4/5 text-left mx-auto">3. Make OpenAI API calls in your program</p>
+      <p className="py-1 lg:w-4/5 text-left mx-auto">4. Watch the conversation appear in the explorer
+      { !onHomeScreen && <span> <a className="underline" href="/">on the home screen</a>.</span> }
+      </p>
     </div>
   )
 }
@@ -165,7 +171,7 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
                 <td className="border p-2 text-gray-700" colSpan={6}>No data. Make sure your database is up and running.</td>
               </tr>
               <tr>
-                <td colSpan={6} className="pt-10"><Instructions /></td>
+                <td colSpan={6} className="pt-10"><Instructions onHomeScreen={true} /></td>
               </tr>
               </>
             )}
