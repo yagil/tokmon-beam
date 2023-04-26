@@ -27,7 +27,7 @@ export type IndexProps = {
 // define a top bar component.
 export const TopBar = () => {
   return (
-    <div className="flex flex-row justify-between border border-b-1 border-b-gray-300 px-5 py-5">
+    <div className="flex flex-row justify-between border border-b-1 border-b-gray-300 px-10 py-5">
       <div className="flex flex-row space-x-2">
           <p>tokmon explorer 🔤🧐</p>
       </div>
@@ -163,9 +163,11 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
   };
 
   const getLastMessageStyled = (summary: TokenUsageSummary) => {
-    const maxMessageLength = 120;
+    const maxMessageLength = 130;
     if (summary == undefined) return <>No messages</>;
-    let exchanges = summary.chatExchanges;
+    // @ts-ignore
+    //     -> chatExchanges is a part of the schema.prisma, but it's not reflected in the generated types
+    let exchanges = summary.chatExchanges; 
     if (exchanges == undefined) {
       exchanges = chatExchanges[summary.tokmon_conversation_id];
     }
@@ -186,6 +188,12 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
     return program;
   };
 
+  const colorForModel = (model: string) => {
+    if (model.startsWith("gpt-3.5")) return 'bg-blue-400/20';
+    if (model.startsWith('gpt-4')) return 'bg-fuchsia-400/20';
+    return 'bg-gray-200/40';
+  }
+
   return (
     <>
       <Head>
@@ -193,13 +201,14 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
       </Head>
       <TopBar />
       <div className="p-10">
-        <h1 className="text-2xl font-medium mb-10">OpenAI API Calls</h1>
+        <h1 className="text-2xl font-medium mb-10">API Calls History</h1>
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100 text-left">
               <th className="border p-2 whitespace-nowrap w-1">Last updated</th>
               <th className="border p-2 whitespace-nowrap w-1">Source program</th>
               <th className="border p-2">Last <code className="bg-slate-200 px-1 rounded-md font-medium">assistant</code> message</th>
+              <th className="border p-2 text-centerwhitespace-nowrap w-1">Models</th>
               <th className="border p-2 text-center">Total cost</th>
               <th className="border p-2 text-center">Total tokens</th>
               <th className="border p-2 whitespace-nowrap w-1 text-center">Tokmon Chat ID</th>
@@ -222,7 +231,7 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
               <tr
                 key={summary.id}
                 id={`summary-${summary.tokmon_conversation_id}`}
-                className="hover:bg-indigo-200 cursor-pointer"
+                className="hover:bg-blue-200/30 cursor-pointer"
                 onClick={() => router.push(`/conversation/${summary.tokmon_conversation_id}`)}
               >
                 <td
@@ -233,12 +242,24 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
                   className="border p-2 whitespace-nowrap"
                   title={summary.monitored_program}
                   >
-                    <p className="font-mono text-xs bg-indigo-100/30 text-black p-2 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
+                    <p className="font-mono text-xs bg-indigo-600/5 text-black p-2 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
                 </td>
                 <td className="border p-2">
                   <p className="text-sm bg-gray-300/20 p-2 rounded-md">{getLastMessageStyled(summary)}</p>
                 </td>
-                <td className="border p-2 text-center font-medium">${summary.total_cost}</td>
+                
+                <td className="border whitespace-nowrap space-x-2 p-1 text-center">
+                  {summary.models.map((model, index) => (
+                    <>
+                    <span key={index} className={"rounded-md text-xs p-2 " + colorForModel(model)}>
+                      <code className="">{model}</code>
+                    </span>
+                    </>
+                  ))}
+                </td>
+                <td className="border p-2 text-center">
+                  <p className="font-medium">${summary.total_cost}</p>
+                </td>
                 <td className="border p-2 whitespace-nowrap text-center">{totalTokens(summary)}</td>
                 <td
                   title={summary.tokmon_conversation_id}
