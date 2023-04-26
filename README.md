@@ -62,11 +62,6 @@ API usage data (including tokens sent and received) will update in real time in 
 
 The data will persist across docker restarts.
 
-## Components
-- NextJS app (listen for incoming JSON blobs from `tokmon` + serve web UI)
-- PostgreSQL database
-- Websocket server (for real time updates)
-
 ## `nextjs-app/.env`
 
 ```env
@@ -88,6 +83,14 @@ POSTGRES_PORT=5432
 # Should in theory work for a hosted database as well
 DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public
 ```
+
+## Architecture
+### Components
+- NextJS app (listen for incoming JSON blobs from `tokmon` + serve web UI)
+- PostgreSQL database
+- Websocket server (for real time updates)
+
+<img width="450" alt="image" src="https://user-images.githubusercontent.com/3611042/234438167-bd6313df-1211-4fbb-8293-a6489247dd17.png">
 
 ## License
 
