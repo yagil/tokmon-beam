@@ -1,7 +1,8 @@
 # `tokmon --beam` 🔤🧐⚡️
-> [tokmon](https://github.com/yagil/tokmon) is a CLI utility to monitor your program or script's OpenAI API token usage.<br>
 
-Using the server in this repo, you can save `tokmon` usage data in a database (local or remote), and explore it in web UI running from `localhost` (updates in real time).
+**tokmon beam** (this repo) is a self-hosted, real-time web UI + db for monitoring your program's OpenAI token usage.<br>
+
+It works together with [`tokmon`](https://github.com/yagil/tokmon), which is a CLI utility you can prepend to your program invocation to monitor its OpenAI API token usage.<br>
 
 <div align="center">
   <img valign="middle" src="https://user-images.githubusercontent.com/3611042/234407215-63afba38-6356-4ba6-bba1-4d46acfb72b2.png" width="48%" />
@@ -15,6 +16,8 @@ Using the server in this repo, you can save `tokmon` usage data in a database (l
 - Runs on `localhost`
 
 ## Installation
+**Note:** `tokmon beam` uses docker. If you don't have docker on your machine, install it first.
+
 1. Install the `tokmon` CLI from PyPi
 ```bash
 pip install tokmon
@@ -31,13 +34,10 @@ git clone https://github.com/yagil/tokmon-beam.git && cd tokmon-beam
 cp nextjs-app/.env.example nextjs-app/.env
 ```
 
-4. Start the `tokmon beam` stack using a wapper script around docker-compose:
+4. Start the `tokmon beam` stack (wraps docker-compose)
 
 ```bash
 python3 tool.py up
-
-# or: use docker-compose directly like so:
-# cd nextjs-app && docker-compose up
 ```
 
 **Optional:** For convenience, you can create a symlink + alias to easily turn the beam server on and off no matter where you are in the filesystem:
@@ -52,19 +52,23 @@ ln -s $(pwd)/tool.py /usr/local/bin/tokmon-beam
 ## Usage
 Setup the tokmon beam stack as described above, and then:
 
-1. Run the `tokmon beam` server:
+1. Run the `tokmon beam` server if it's not already running:
 
-```bash
-$ tokmon-beam up # optionally run with `-d` to run in detached mode
+```console
+tokmon-beam up 
 ```
 
-2. Run [`tokmon` CLI](https://github.com/yagil/tokmon) with the `--beam` flag pointing to the `tokmon beam` server:
+2. Head to [`localhost:9000`](localhost:9000) in your browser
 
-```bash
-$ tokmon --beam localhost:9000 /path/to/your/<program name> [arg1] [arg2] ...
+3. Run the [`tokmon` CLI](https://github.com/yagil/tokmon) with the `--beam` flag pointing to your tokmon beam server:
+
+```console
+tokmon --beam localhost:9000 /path/to/your/<program name> [arg1] [arg2] ...
 ```
+4. Logs and usage data will appear up in the web UI and update in real time. 
 
-3. Head to [`localhost:9000`](localhost:9000) in your browser to see the usage data in real time.
+## Troubleshooting
+Keep an eye on the docker logs for any sign of misconfiguration or bugs.
 
 ## Configuration parameters in `nextjs-app/.env`
 You may change the following parameters in the `.env` file:
