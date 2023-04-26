@@ -3,13 +3,18 @@ import Head from 'next/head'
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 import { ChatExchange, TokenUsageSummary } from '@prisma/client';
+import { getChatExchanges, getUsageSummary } from '@/lib/helpers';
 
-// server side props
-export async function getServerSideProps() {
+export async function getServerSideProps(context: any) {
   const wssPort = Number(process.env.WSS_PORT);
+  const { id } = context.query;
+  const storedExchanges = await getChatExchanges(id);
+  const storedSummary = await getUsageSummary(id);
 
   return {
     props: {
+      storedExchanges: JSON.parse(JSON.stringify(storedExchanges)),
+      storedSummary: JSON.parse(JSON.stringify(storedSummary)),
       wssPort,
     },
   };
@@ -17,6 +22,8 @@ export async function getServerSideProps() {
 
 export type ConversationProps = {
   wssPort: number;
+  storedExchanges: ChatExchange[];
+  storedSummary: TokenUsageSummary;
 };
 
 function UsageSummaryTable({ summary }: { summary: TokenUsageSummary }) {
@@ -86,9 +93,9 @@ function JsonExportButton({ exchanges, summary, id }: { exchanges: ChatExchange[
   );
 }
 
-export default function Conversation({ wssPort }: ConversationProps) {
-  const [exchanges, setExchanges] = useState<ChatExchange[]>([]);
-  const [summary, setSummary] = useState<TokenUsageSummary|null>(null);
+export default function Conversation({ wssPort, storedExchanges, storedSummary }: ConversationProps) {
+  const [exchanges, setExchanges] = useState<ChatExchange[]>(storedExchanges);
+  const [summary, setSummary] = useState<TokenUsageSummary>(storedSummary);
   const router = useRouter();
   const { id } = router.query as { id: string };
   const pageTitle = id ? `tokmon explorer • ${id}` : 'tokmon explorer';

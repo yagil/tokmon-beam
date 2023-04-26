@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/prisma';
+import prisma from '@/lib/prisma';
 import WebSocket from 'ws';
+import { getAllUsageSummaries, getUsageSummary } from '@/lib/helpers';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -48,29 +49,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else if (req.method === 'GET') {
     try {
       const tokmon_conversation_id = req.query.tokmon_conversation_id;
-
+      
       let retData;
-
       if (tokmon_conversation_id !== undefined) {
-        
-        retData = await prisma.tokenUsageSummary.findUnique({
-          where: { tokmon_conversation_id: tokmon_conversation_id as string },
-          include: {
-            chatExchanges: true,
-          },
-        });
-
+        retData = await getUsageSummary(tokmon_conversation_id as string);
       } else {
-        retData = await prisma.tokenUsageSummary.findMany({
-          include: {
-            chatExchanges: true,
-          },
-          orderBy: {
-            updated_at: 'desc',
-          },
-        });
+        retData = await getAllUsageSummaries();
       }
-  
       res.status(200).json(retData);
     } catch (error) {
       console.error(`Error fetching data: ${error}`);

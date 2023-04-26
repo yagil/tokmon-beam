@@ -3,12 +3,16 @@ import Head from 'next/head'
 import * as React from 'react';
 import { TokenUsageSummary } from '@prisma/client';
 import { formatDate } from '../lib/utils';
+import { getAllUsageSummaries } from '@/lib/helpers';
 
 export async function getServerSideProps() {
   const wssPort = Number(process.env.WSS_PORT);
   
+  const storedSummaries = await getAllUsageSummaries();
+
   return {
     props: {
+      storedSummaries: JSON.parse(JSON.stringify(storedSummaries)),
       wssPort
     },
   };
@@ -16,6 +20,7 @@ export async function getServerSideProps() {
 
 export type IndexProps = {
   wssPort: number;
+  storedSummaries: TokenUsageSummary[];
 };
 
 // define a top bar component.
@@ -52,10 +57,12 @@ export const Instructions = () => {
   )
 }
 
-export default function Index({ wssPort } : IndexProps) {
-  const [summaries, setSummaries] = useState<TokenUsageSummary[]>([]);
+export default function Index({ wssPort, storedSummaries } : IndexProps) {
+  const [summaries, setSummaries] = useState<TokenUsageSummary[]>(storedSummaries);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdatedId, setLastUpdatedId] = useState<string | null>(null);
+
+  console.log(`type of summaries: ${typeof summaries}`);
 
   const updateSummaries = (data: any) => {
     setSummaries((prevSummaries) => {
