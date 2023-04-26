@@ -4,8 +4,8 @@
 Using the server in this repo, you can save `tokmon` usage data in a database (local or remote), and explore it in web UI running from `localhost` (updates in real time).
 
 <div align="center">
-  <img valign="middle" src="https://user-images.githubusercontent.com/3611042/234407215-63afba38-6356-4ba6-bba1-4d46acfb72b2.png" width="50%" />
-  <img valign="middle" src="https://user-images.githubusercontent.com/3611042/234406254-d6299348-d428-43ec-8921-c779d7b82b79.png" width="46%" /> 
+  <img valign="middle" src="https://user-images.githubusercontent.com/3611042/234407215-63afba38-6356-4ba6-bba1-4d46acfb72b2.png" width="48%" />
+  <img valign="middle" src="https://user-images.githubusercontent.com/3611042/234406254-d6299348-d428-43ec-8921-c779d7b82b79.png" width="48%" /> 
 </div>
 
 ## Features
@@ -20,26 +20,24 @@ Using the server in this repo, you can save `tokmon` usage data in a database (l
 pip install tokmon
 ```
 
-2. Clone this repository:
+2. Clone this repository and `cd` into the root directory:
 ```bash
 git clone https://github.com/yagil/tokmon-beam.git && cd tokmon-beam
 ```
 
-3. Navigate to the `nextjs-app` directory:
+3. Create your local copy of the `.env` file
 ```bash
-cd nextjs-app
+# The .env file needs to be inside the 'nextjs-app/' folder
+cp nextjs-app/.env.example nextjs-app/.env
 ```
 
-4. Create a local copy of the `.env` file
-```bash
-cp .env.example .env
-```
-
-5. Start the `tokmon beam` stack using Docker:
+4. Start the `tokmon beam` stack using a wapper script around docker-compose:
 
 ```bash
-# Make sure you're in 'nextjs-app/' folder!
-docker-compose up
+python3 tool.py up
+
+# or: use docker-compose directly like so:
+# cd nextjs-app && docker-compose up
 ```
 
 **Optional:** For convenience, you can create a symlink + alias to easily turn the beam server on and off no matter where you are in the filesystem:
