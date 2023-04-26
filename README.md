@@ -51,11 +51,12 @@ ln -s $(pwd)/tool.py /usr/local/bin/tokmon-beam
 
 ## Usage
 Setup the tokmon beam stack as described above, and then:
+1. 
 
-1. Add the `--beam` flag to your `tokmon` incantation:
+2. Run [`tokmon` CLI](https://github.com/yagil/tokmon) with the `--beam` flag set:
 
 ```bash
-$ tokmon --beam localhost:9000 <program name> [arg1] [arg2] ...
+$ tokmon --beam localhost:9000 /path/to/your/<program name> [arg1] [arg2] ...
 ```
 
 API usage data (including tokens sent and received) will update in real time in the web UI.

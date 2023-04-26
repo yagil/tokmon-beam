@@ -49,7 +49,7 @@ export const Instructions = () => {
       </code>
       <p className="py-1 md:w-2/5 text-left mx-auto">2. Start <b className="font-mono">tokmon</b> with the <b className="font-mono">--beam</b> flag set</p>
       <code>
-        <p className="font-mono text-sm py-3 px-10 lg:w-2/5 bg-indigo-800 lg:rounded-md text-white  mx-auto">tokmon --beam &lt;your program&gt; [arg1] [arg2] ...</p>
+        <p className="font-mono text-sm py-3 px-10 lg:w-2/5 bg-indigo-800 lg:rounded-md text-white  mx-auto">tokmon --beam localhost:9000 /path/to/your/&lt;your program&gt; [arg1] [arg2] ...</p>
       </code>
       <p className="py-1 md:w-2/5 text-left mx-auto">3. Make OpenAI API calls in your program</p>
       <p className="py-1 md:w-2/5 text-left mx-auto">4. Watch the conversation appear in the explorer</p>
