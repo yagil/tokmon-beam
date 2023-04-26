@@ -42,15 +42,12 @@ cp .env.example .env
 docker-compose up
 ```
 
-6. Create a symlink and an permanent alias to easy turn the beam server on and off no matter where you are in the filesystem:
+**Optional:** For convenience, you can create a symlink + alias to easily turn the beam server on and off no matter where you are in the filesystem:
 
 ```bash
 # Make sure you're in 'nextjs-app/' folder!
 ln -s $(pwd)/tool.py /usr/local/bin/tokmon-beam
 ```
-
-
-
 
 5. Head to `localhost:9000` in your browser
 
