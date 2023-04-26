@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import * as React from 'react';
 import { ChatExchange, TokenUsageSummary } from '@prisma/client';
 import { getChatExchanges, getUsageSummary } from '@/lib/helpers';
+import { ChatRequest, ChatResponse } from '@/lib/types';
 
 export async function getServerSideProps(context: any) {
   const wssPort = Number(process.env.WSS_PORT);
@@ -50,7 +51,15 @@ function UsageSummaryTable({ summary }: { summary: TokenUsageSummary }) {
         <tbody className="text-center">
           <tr id="summary">
             <td className="border border-black p-2 font-bold bg-emerald-200">${total_cost}</td>
-            <td className="border border-black p-2">{models}</td>
+            <td className="border border-black p-2 space-x-2">
+              {models.map((model, index) => (
+                <>
+                <span key={index} className={"odd:bg-gray-200 even:bg-slate-200 rounded-md py-1 px-2"}>
+                  <code className="">{model}</code>
+                </span>
+                </>
+              ))}
+            </td>
             <td className="border border-black p-2">{total_tokens}</td>
             <td className="border border-black p-2">{total_prompt_tokens}</td>
             <td className="border border-black p-2">{total_completion_tokens}</td>
@@ -63,7 +72,8 @@ function UsageSummaryTable({ summary }: { summary: TokenUsageSummary }) {
 }
 
 function ChatExchange({ exchange }: { exchange: ChatExchange}) {
-  const { id, timestamp, request, response } = exchange;
+  const request = exchange.request as ChatRequest;
+  const response = exchange.request as ChatResponse;
 
   return (
     <>
@@ -79,7 +89,7 @@ function ChatExchange({ exchange }: { exchange: ChatExchange}) {
   );
 }
 
-function JsonExportButton({ exchanges, summary, id }: { exchanges: ChatExchange[], summary: TokenUsageSummary|null, id: string }) {
+function JsonExportButton({ summary, id }: { summary: TokenUsageSummary|null, id: string }) {
   return (
     <button className="underline a-like" onClick={() => {
       const element = document.createElement('a');
@@ -96,10 +106,26 @@ function JsonExportButton({ exchanges, summary, id }: { exchanges: ChatExchange[
 export default function Conversation({ wssPort, storedExchanges, storedSummary }: ConversationProps) {
   const [exchanges, setExchanges] = useState<ChatExchange[]>(storedExchanges);
   const [summary, setSummary] = useState<TokenUsageSummary>(storedSummary);
-  const [error, setError] = useState<string|null>(null);
+  
   const router = useRouter();
   const { id } = router.query as { id: string };
+  
   const pageTitle = id ? `tokmon explorer • ${id}` : 'tokmon explorer';
+
+  const raw = router.query.raw === 'true' || router.query.raw === "1";
+  
+  if (raw) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen py-2">
+        <Head>
+          <title>{pageTitle}</title>
+        </Head>
+        <pre className="whitespace-break-spaces px-5 py-2 text-xs">
+          {JSON.stringify(summary, null, 2)}
+        </pre>
+      </div>
+    );
+  }
   
   useEffect(() => {
     setExchanges(storedExchanges);
@@ -155,7 +181,7 @@ export default function Conversation({ wssPort, storedExchanges, storedSummary }
         <h1 className="flex flex-row gap-x-2 whitespace-nowrap "> / <pre>{id}</pre></h1>
       </div>
     
-      <JsonExportButton exchanges={exchanges} summary={summary} id={id} />
+      <JsonExportButton summary={summary} id={id} />
     </div>
 
     <div className="px-5">

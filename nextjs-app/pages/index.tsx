@@ -163,7 +163,7 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
   };
 
   const getLastMessageStyled = (summary: TokenUsageSummary) => {
-    const maxMessageLength = 130;
+    const maxMessageLength = 150;
     if (summary == undefined) return <>No messages</>;
     // @ts-ignore
     //     -> chatExchanges is a part of the schema.prisma, but it's not reflected in the generated types
@@ -206,11 +206,11 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
           <thead>
             <tr className="bg-gray-100 text-left">
               <th className="border p-2 whitespace-nowrap w-1">Last updated</th>
-              <th className="border p-2 whitespace-nowrap w-1">Source program</th>
-              <th className="border p-2">Last <code className="bg-slate-200 px-1 rounded-md font-medium">assistant</code> message</th>
-              <th className="border p-2 text-centerwhitespace-nowrap w-1">Models</th>
-              <th className="border p-2 text-center">Total cost</th>
-              <th className="border p-2 text-center">Total tokens</th>
+              <th className="border p-2">Source program</th>
+              <th className="border p-2 whitespace-nowrap">Last <code className="bg-slate-200 px-1 rounded-md font-medium">assistant</code> message</th>
+              <th className="border p-2 text-center">Models</th>
+              <th className="border p-2 text-center whitespace-nowrap w-1">Total cost</th>
+              <th className="border p-2 text-center whitespace-nowrap w-1">Total tokens</th>
               <th className="border p-2 whitespace-nowrap w-1 text-center">Tokmon Chat ID</th>
               <th className="border p-2 text-center">Actions</th>
             </tr>
@@ -239,21 +239,21 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
                   title={summary.updated_at.toString()}
                 >{formatDate(summary.updated_at)}</td>
                 <td
-                  className="border p-2 whitespace-nowrap"
+                  className="border p-2 xl:whitespace-nowrap whitespace-pre-wrap"
                   title={summary.monitored_program}
                   >
-                    <p className="font-mono text-xs bg-indigo-600/5 text-black p-2 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
+                    <p className="font-mono text-xs bg-indigo-600/10 text-black p-2 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
                 </td>
                 <td className="border p-2">
-                  <p className="text-sm bg-gray-300/20 p-2 rounded-md">{getLastMessageStyled(summary)}</p>
+                  <p className="text-sm bg-gray-300/40 py-2 px-3 rounded-md inline-block">{getLastMessageStyled(summary)}</p>
                 </td>
                 
-                <td className="border whitespace-nowrap space-x-2 p-1 text-center">
+                <td className="border space-y-2 p-2 text-center">
                   {summary.models.map((model, index) => (
                     <>
-                    <span key={index} className={"rounded-md text-xs p-2 " + colorForModel(model)}>
-                      <code className="">{model}</code>
-                    </span>
+                    <div key={index} className={"rounded-md text-sm p-2" + " " + colorForModel(model)}>
+                      <code className="text-xs block lg:whitespace-nowrap">{model}</code>
+                    </div>
                     </>
                   ))}
                 </td>
@@ -265,7 +265,7 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
                   title={summary.tokmon_conversation_id}
                   className="border p-2 whitespace-nowrap"
                 >
-                  {summary.tokmon_conversation_id.substring(0, 20) + "..."}
+                  <p className="">{summary.tokmon_conversation_id.substring(0, 20) + "..."}</p>
                 </td>
                 <td className="border p-2 text-center">
                   <button
