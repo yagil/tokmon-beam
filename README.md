@@ -9,10 +9,10 @@ Using the server in this repo, you can save `tokmon` usage data in a database (l
 </div>
 
 ## Features
-- Store tokmon JSON data in a Postgres database (local or remote, configurable in the `.env` file)
+- Store [`tokmon`](https://github.com/yagil/tokmon) JSON data in a Postgres database (local or remote, configurable in the `.env` file)
 - Web UI for exploring usage data (updates in real time)
 - Export data as JSON from the web UI
-- Runs on localhost
+- Runs on `localhost`
 
 ## Installation
 1. Install the `tokmon` CLI from PyPi
@@ -51,17 +51,22 @@ ln -s $(pwd)/tool.py /usr/local/bin/tokmon-beam
 
 ## Usage
 Setup the tokmon beam stack as described above, and then:
-1. 
 
-2. Run [`tokmon` CLI](https://github.com/yagil/tokmon) with the `--beam` flag set:
+1. Run the `tokmon beam` server:
+
+```bash
+$ tokmon-beam up # optionally run with `-d` to run in detached mode
+```
+
+2. Run [`tokmon` CLI](https://github.com/yagil/tokmon) with the `--beam` flag pointing to the `tokmon beam` server:
 
 ```bash
 $ tokmon --beam localhost:9000 /path/to/your/<program name> [arg1] [arg2] ...
 ```
 
-API usage data (including tokens sent and received) will update in real time in the web UI.
+3. Head to `localhost:9000` in your browser to see the usage data in real time 
 
-The data will persist across docker restarts.
+API usage data (including tokens sent and received) will update in real time in the web UI.
 
 ## `nextjs-app/.env`
 
