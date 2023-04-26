@@ -14,7 +14,6 @@ def main():
     parser = argparse.ArgumentParser(description='tokmon-beam')
     parser.add_argument('command', help='[up|down]')
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for docker-compose')
-    parser.add_argument('-h', '--help', action='help', help='Show this help message and exit')
 
     args = parser.parse_args()
 
