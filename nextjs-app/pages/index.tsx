@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { ChatExchange, TokenUsageSummary } from '@prisma/client';
-import { formatDate, getLastMessageInChatExchanges } from '../lib/utils';
+import { formatDate, getLastMessageInChatExchanges, colorForModel } from '@/lib/utils';
 import { getAllUsageSummaries } from '@/lib/helpers';
 
 export async function getServerSideProps() {
@@ -188,12 +188,6 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
     return program;
   };
 
-  const colorForModel = (model: string) => {
-    if (model.startsWith("gpt-3.5")) return 'bg-blue-400/20';
-    if (model.startsWith('gpt-4')) return 'bg-fuchsia-400/20';
-    return 'bg-gray-200/40';
-  }
-
   return (
     <>
       <Head>
@@ -205,13 +199,14 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100 text-left">
-              <th className="border p-2 whitespace-nowrap w-1">Last updated</th>
+            
               <th className="border p-2">Source program</th>
+              <th className="border p-2 whitespace-nowrap w-1">Last updated</th>
               <th className="border p-2 whitespace-nowrap">Last <code className="bg-slate-200 px-1 rounded-md font-medium">assistant</code> message</th>
-              <th className="border p-2 text-center">Models</th>
               <th className="border p-2 text-center whitespace-nowrap w-1">Total cost</th>
               <th className="border p-2 text-center whitespace-nowrap w-1">Total tokens</th>
-              <th className="border p-2 whitespace-nowrap w-1 text-center">Tokmon Chat ID</th>
+              <th className="border p-2 text-center">Models</th>
+              <th className="border p-2 whitespace-nowrap w-1 text-left">tokmon session ID</th>
               <th className="border p-2 text-center">Actions</th>
             </tr>
           </thead>
@@ -229,44 +224,46 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
 
             {summaries.map((summary) => (
               <tr
-                key={summary.id}
+                key={summary.id} 
                 id={`summary-${summary.tokmon_conversation_id}`}
                 className="hover:bg-blue-200/30 cursor-pointer"
                 onClick={() => router.push(`/conversation/${summary.tokmon_conversation_id}`)}
               >
-                <td
-                  className="border p-2 text-gray-700 whitespace-nowrap"
-                  title={summary.updated_at.toString()}
-                >{formatDate(summary.updated_at)}</td>
+                
+
                 <td
                   className="border p-2 xl:whitespace-nowrap whitespace-pre-wrap"
                   title={summary.monitored_program}
                   >
-                    <p className="font-mono text-xs bg-indigo-600/10 text-black p-2 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
+                    <p className="font-mono text-xs py-0.5 px-2 bg-gray-100 text-gray-700 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
                 </td>
+
+                <td className="border p-2 text-gray-700 whitespace-nowrap" title={summary.updated_at.toString()}>
+                  {formatDate(summary.updated_at)}
+                </td>
+
                 <td className="border p-2">
-                  <p className="text-sm bg-gray-300/40 py-2 px-3 rounded-md inline-block">{getLastMessageStyled(summary)}</p>
+                  <p className="text-sm bg-gray-300/30 p-2 rounded-md inline-block">{getLastMessageStyled(summary)}</p>
                 </td>
                 
-                <td className="border space-y-2 p-2 text-center">
+
+                <td className="border px-5 text-center">
+                  <p className="text-sm font-medium">${summary.total_cost}</p>
+                </td>
+                <td className="border p-2 font-medium text-sm whitespace-nowrap text-center">{totalTokens(summary)}</td>
+
+                <td className="border space-y-1.5 p-1.5 text-center">
                   {summary.models.map((model, index) => (
-                    <>
-                    <div key={index} className={"rounded-md text-sm p-2" + " " + colorForModel(model)}>
-                      <code className="text-xs block lg:whitespace-nowrap">{model}</code>
+                    <div key={index} className={"rounded-md text-sm py-1 px-2" + " " + colorForModel(model)}>
+                      <code className="text-xs block whitespace-nowrap">{model}</code>
                     </div>
-                    </>
                   ))}
                 </td>
-                <td className="border p-2 text-center">
-                  <p className="font-medium">${summary.total_cost}</p>
+
+                <td title={summary.tokmon_conversation_id} className="border p-2 whitespace-nowrap">
+                  <p className="text-xs font-mono">{summary.tokmon_conversation_id}</p>
                 </td>
-                <td className="border p-2 whitespace-nowrap text-center">{totalTokens(summary)}</td>
-                <td
-                  title={summary.tokmon_conversation_id}
-                  className="border p-2 whitespace-nowrap"
-                >
-                  <p className="">{summary.tokmon_conversation_id.substring(0, 20) + "..."}</p>
-                </td>
+
                 <td className="border p-2 text-center">
                   <button
                     className="text-red-500 hover:text-red-700"

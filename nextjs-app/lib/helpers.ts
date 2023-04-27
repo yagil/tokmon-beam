@@ -12,28 +12,39 @@ export async function getUsageSummary(tokmon_conversation_id: string) {
 }
 
 export async function getAllUsageSummaries(){
-    const summaries = await prisma.tokenUsageSummary.findMany({
-        include: {
-          chatExchanges: true,
-        },
-        orderBy: {
-          updated_at: 'desc',
-        },
-      });
-    
-    return summaries;
-  }
-
-  export async function getChatExchanges(tokmon_conversation_id: string) {
-    const chatExchanges = await prisma.chatExchange.findMany({
-      where: { tokmon_conversation_id: tokmon_conversation_id as string },
+  const summaries = await prisma.tokenUsageSummary.findMany({
       include: {
-        tokenUsageSummary: true,
+        chatExchanges: true,
       },
       orderBy: {
-        timestamp: 'desc',
+        updated_at: 'desc',
       },
     });
+  
+  return summaries;
+}
 
-    return chatExchanges;
-  }
+export async function getAllChatExchanges(tokmon_conversation_id: string) {
+  const chatExchanges = await prisma.chatExchange.findMany({
+    where: { tokmon_conversation_id: tokmon_conversation_id as string },
+    include: {
+      tokenUsageSummary: true,
+    },
+    orderBy: {
+      timestamp: 'desc',
+    },
+  });
+
+  return chatExchanges;
+}
+
+export async function getChatExchange(id: string) {
+  const chatExchange = await prisma.chatExchange.findUnique({
+    where: { id: id },
+    include: {
+      tokenUsageSummary: false,
+    },
+  });
+
+  return chatExchange;
+}

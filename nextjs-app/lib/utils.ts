@@ -53,3 +53,9 @@ export function formatDate(date: Date): string {
     }
     return null;
   }
+
+export const colorForModel = (model: string) => {
+  if (model.startsWith("gpt-3.5")) return "bg-blue-400/20";
+  if (model.startsWith("gpt-4")) return "bg-fuchsia-400/20";
+  return "bg-gray-200/40";
+}
