@@ -214,10 +214,10 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
             {summaries.length === 0 && (
               <>
               <tr>
-                <td className="border p-2 text-gray-700" colSpan={6}>No data yet.</td>
+                <td className="border p-2 text-gray-700 text-center" colSpan={8}>No data yet.</td>
               </tr>
               <tr>
-                <td colSpan={6} className="pt-10"><Instructions onHomeScreen={true} /></td>
+                <td colSpan={8} className="pt-10"><Instructions onHomeScreen={true} /></td>
               </tr>
               </>
             )}
@@ -254,7 +254,7 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
 
                 <td className="border space-y-1.5 p-1.5 text-center">
                   {summary.models.map((model, index) => (
-                    <div key={index} className={"rounded-md text-sm py-1 px-2" + " " + colorForModel(model)}>
+                    <div key={index} className={"rounded-md text-sm py-1 px-2" + "  " + colorForModel(model)}>
                       <code className="text-xs block whitespace-nowrap">{model}</code>
                     </div>
                   ))}
