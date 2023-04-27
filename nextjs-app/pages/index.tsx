@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head'
+import { useRouter } from 'next/router';
 import * as React from 'react';
-import { TokenUsageSummary } from '@prisma/client';
-import { formatDate } from '../lib/utils';
+import { ChatExchange, TokenUsageSummary } from '@prisma/client';
+import { formatDate, getLastMessageInChatExchanges, colorForModel } from '@/lib/utils';
 import { getAllUsageSummaries } from '@/lib/helpers';
 
 export async function getServerSideProps() {
@@ -26,7 +27,7 @@ export type IndexProps = {
 // define a top bar component.
 export const TopBar = () => {
   return (
-    <div className="flex flex-row justify-between border border-b-1 border-b-gray-300 px-5 py-5">
+    <div className="flex flex-row justify-between border border-b-1 border-b-gray-300 px-10 py-5">
       <div className="flex flex-row space-x-2">
           <p>tokmon explorer 🔤🧐</p>
       </div>
@@ -65,10 +66,10 @@ export const Instructions = ({ onHomeScreen } : InstructionsProps) => {
 
 export default function Index({ wssPort, storedSummaries } : IndexProps) {
   const [summaries, setSummaries] = useState<TokenUsageSummary[]>(storedSummaries);
+  const [chatExchanges, setChatExchanges] = useState<{ [key: string]: ChatExchange[] }>({});
   const [error, setError] = useState<string | null>(null);
   const [lastUpdatedId, setLastUpdatedId] = useState<string | null>(null);
-
-  console.log(`type of summaries: ${typeof summaries}`);
+  const router = useRouter();
 
   const updateSummaries = (data: any) => {
     setSummaries((prevSummaries) => {
@@ -84,6 +85,7 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
   }
     
   useEffect(() => {
+    setSummaries(storedSummaries);
     fetch('/api/summary')
       .then((res) => res.json())
       .then((data) => { setSummaries(data); })
@@ -105,6 +107,14 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
       if (type === 'tokenUsageSummary') {
         updateSummaries(data);
         setLastUpdatedId(data.tokmon_conversation_id);
+      } else if (type === 'chatExchange') {
+        setChatExchanges((prevChatExchanges) => {
+          const newChatExchanges = { ...prevChatExchanges };
+          const chatExchangesForConversation = newChatExchanges[data.tokmon_conversation_id] || [];
+          chatExchangesForConversation.push(data);
+          newChatExchanges[data.tokmon_conversation_id] = chatExchangesForConversation;
+          return newChatExchanges;
+        });
       }
     }
     return () => {
@@ -122,17 +132,24 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
         setLastUpdatedId(null);
       }, 1000);
     }
-  }, [summaries]);
+  }, [summaries, chatExchanges]);
 
   const deleteSummary = async (id: string) => {
     try {
-      // show "Are you sure?" alert
-      if (!confirm('Are you sure you want to delete this summary?')) {
+      // Show "Are you sure?" alert
+      if (!confirm('**Danger Zone**\nAre you sure you want to delete this summary?\n\nThis will delete the record from the database and cannot be undone.')) {
         return;
       }
-      // delete summary
+      // Delete summary from the database
       await fetch(`/api/delete/${id}`, { method: 'DELETE' });
+
+      // Update local UI state
       setSummaries((prevSummaries) => prevSummaries.filter((summary) => summary.tokmon_conversation_id !== id));
+      setChatExchanges((prevChatExchanges) => {
+        const newChatExchanges = { ...prevChatExchanges };
+        delete newChatExchanges[id];
+        return newChatExchanges;
+      });
     } catch (error) {
       console.error('Error deleting summary:', error);
     }
@@ -145,6 +162,32 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
     return total_tokens;
   };
 
+  const getLastMessageStyled = (summary: TokenUsageSummary) => {
+    const maxMessageLength = 150;
+    if (summary == undefined) return <>No messages</>;
+    // @ts-ignore
+    //     -> chatExchanges is a part of the schema.prisma, but it's not reflected in the generated types
+    let exchanges = summary.chatExchanges; 
+    if (exchanges == undefined) {
+      exchanges = chatExchanges[summary.tokmon_conversation_id];
+    }
+    if (!exchanges) return <>No messages</>;
+    const message = getLastMessageInChatExchanges(exchanges);
+    if (!message) return <></>;
+    return <>
+      {message.content.length > maxMessageLength ? message.content.substring(0, maxMessageLength) + '...' : message.content}
+    </>;
+  };
+
+  const getProgramInvocationStyled = (program: string) => {
+    const maxLength = 25;
+    if (program.length > maxLength) {
+      const start = program.length - maxLength;
+      return  '...' + program.substring(start, program.length);
+    }
+    return program;
+  };
+
   return (
     <>
       <Head>
@@ -152,23 +195,26 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
       </Head>
       <TopBar />
       <div className="p-10">
-        <h1 className="text-2xl font-medium mb-10">Conversations History</h1>
+        <h1 className="text-2xl font-medium mb-10">API Calls History</h1>
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100 text-left">
-              <th className="border p-2">Last updated</th>
-              <th className="border p-2">Conversation ID</th>
-              <th className="border p-2">Program invocation</th>
-              <th className="border p-2">Total tokens</th>
-              <th className="border p-2">Total cost</th>
-              <th className="border p-2">Actions</th>
+            
+              <th className="border p-2">Source program</th>
+              <th className="border p-2 whitespace-nowrap w-1">Last updated</th>
+              <th className="border p-2 whitespace-nowrap">Last <code className="bg-slate-200 px-1 rounded-md font-medium">assistant</code> message</th>
+              <th className="border p-2 text-center whitespace-nowrap w-1">Total cost</th>
+              <th className="border p-2 text-center whitespace-nowrap w-1">Total tokens</th>
+              <th className="border p-2 text-center">Models</th>
+              <th className="border p-2 whitespace-nowrap w-1 text-left">tokmon session ID</th>
+              <th className="border p-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {summaries.length === 0 && (
               <>
               <tr>
-                <td className="border p-2 text-gray-700" colSpan={6}>No data. Make sure your database is up and running.</td>
+                <td className="border p-2 text-gray-700" colSpan={6}>No data yet.</td>
               </tr>
               <tr>
                 <td colSpan={6} className="pt-10"><Instructions onHomeScreen={true} /></td>
@@ -177,22 +223,56 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
             )}
 
             {summaries.map((summary) => (
-              <tr key={summary.id} id={`summary-${summary.tokmon_conversation_id}`}>
-                <td className="border p-2 text-gray-700">{formatDate(summary.updated_at)}</td>
+              <tr
+                key={summary.id} 
+                id={`summary-${summary.tokmon_conversation_id}`}
+                className="hover:bg-blue-200/30 cursor-pointer"
+                onClick={() => router.push(`/conversation/${summary.tokmon_conversation_id}`)}
+              >
+                
+
                 <td
-                  className="border p-2 underline cursor-pointer a-like"
-                >
-                  <a href={`/conversation/${summary.tokmon_conversation_id}`}>
-                  {summary.tokmon_conversation_id}
-                  </a>
+                  className="border p-2 xl:whitespace-nowrap whitespace-pre-wrap"
+                  title={summary.monitored_program}
+                  >
+                    <p className="font-mono text-xs py-0.5 px-2 bg-gray-100 text-gray-700 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
                 </td>
-                <td className="border p-2">{summary.monitored_program}</td>
-                <td className="border p-2">{totalTokens(summary)}</td>
-                <td className="border p-2">${summary.total_cost}</td>
+
+                <td className="border p-2 text-gray-700 whitespace-nowrap" title={summary.updated_at.toString()}>
+                  {formatDate(summary.updated_at)}
+                </td>
+
                 <td className="border p-2">
+                  <p className="text-sm bg-gray-300/30 p-2 rounded-md inline-block">{getLastMessageStyled(summary)}</p>
+                </td>
+                
+
+                <td className="border px-5 text-center">
+                  <p className="text-sm font-medium">${summary.total_cost}</p>
+                </td>
+                <td className="border p-2 font-medium text-sm whitespace-nowrap text-center">{totalTokens(summary)}</td>
+
+                <td className="border space-y-1.5 p-1.5 text-center">
+                  {summary.models.map((model, index) => (
+                    <div key={index} className={"rounded-md text-sm py-1 px-2" + " " + colorForModel(model)}>
+                      <code className="text-xs block whitespace-nowrap">{model}</code>
+                    </div>
+                  ))}
+                </td>
+
+                <td title={summary.tokmon_conversation_id} className="border p-2 whitespace-nowrap">
+                  <p className="text-xs font-mono">{summary.tokmon_conversation_id}</p>
+                </td>
+
+                <td className="border p-2 text-center">
                   <button
                     className="text-red-500 hover:text-red-700"
-                    onClick={() => deleteSummary(summary.tokmon_conversation_id)}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault();
+                        deleteSummary(summary.tokmon_conversation_id)
+                      }
+                    }
                   >
                     Delete
                   </button>

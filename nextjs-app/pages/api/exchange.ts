@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import WebSocket from 'ws';
 import prisma from '../../lib/prisma';
-import { getChatExchanges } from '@/lib/helpers';
+import { getAllChatExchanges } from '@/lib/helpers';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let retData;
 
       if (tokmon_conversation_id !== undefined) {        
-        retData = await getChatExchanges(tokmon_conversation_id as string);
+        retData = await getAllChatExchanges(tokmon_conversation_id as string);
 
       } else {
         retData = await prisma.chatExchange.findMany({
