@@ -24,7 +24,7 @@ If you're developing apps, websites, or scripts that make calls to the OpenAI AP
 
 1. Install the `tokmon` CLI from PyPi
 ```bash
-pip install tokmon
+pip install --upgrade tokmon
 ```
 
 2. Clone this repository and `cd` into the root directory:
