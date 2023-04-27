@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { ChatExchange, TokenUsageSummary } from '@prisma/client';
-import { formatDate, getLastMessageInChatExchanges, colorForModel } from '@/lib/utils';
+import { formatDate, getLastMessageInChatExchanges, colorForModel, FRACTION_DIGITS } from '@/lib/utils';
 import { getAllUsageSummaries } from '@/lib/helpers';
 
 export async function getServerSideProps() {
@@ -226,16 +226,12 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
               <tr
                 key={summary.id} 
                 id={`summary-${summary.tokmon_conversation_id}`}
-                className="hover:bg-blue-200/30 cursor-pointer"
+                className="hover:bg-blue-200/30 cursor-pointer text-sm"
                 onClick={() => router.push(`/conversation/${summary.tokmon_conversation_id}`)}
               >
                 
-
-                <td
-                  className="border p-2 xl:whitespace-nowrap whitespace-pre-wrap"
-                  title={summary.monitored_program}
-                  >
-                    <p className="font-mono text-xs py-0.5 px-2 bg-gray-100 text-gray-700 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
+                <td className="border p-2 xl:whitespace-nowrap whitespace-pre-wrap" title={summary.monitored_program} >
+                  <p className="font-mono text-xs py-0.5 px-2 bg-gray-100 text-gray-700 rounded-md">{getProgramInvocationStyled(summary.monitored_program)}</p>
                 </td>
 
                 <td className="border p-2 text-gray-700 whitespace-nowrap" title={summary.updated_at.toString()}>
@@ -243,18 +239,19 @@ export default function Index({ wssPort, storedSummaries } : IndexProps) {
                 </td>
 
                 <td className="border p-2">
-                  <p className="text-sm bg-gray-300/30 p-2 rounded-md inline-block">{getLastMessageStyled(summary)}</p>
+                  <p className="bg-gray-300/30 p-2 rounded-md inline-block">{getLastMessageStyled(summary)}</p>
                 </td>
                 
 
                 <td className="border px-5 text-center">
-                  <p className="text-sm font-medium">${summary.total_cost}</p>
+                  <p className="font-medium">${summary.total_cost.toFixed(FRACTION_DIGITS)}</p>
                 </td>
-                <td className="border p-2 font-medium text-sm whitespace-nowrap text-center">{totalTokens(summary)}</td>
+                
+                <td className="border p-2 font-medium whitespace-nowrap text-center">{totalTokens(summary)}</td>
 
                 <td className="border space-y-1.5 p-1.5 text-center">
                   {summary.models.map((model, index) => (
-                    <div key={index} className={"rounded-md text-sm py-1 px-2" + "  " + colorForModel(model)}>
+                    <div key={index} className={"rounded-md py-1 px-2" + "  " + colorForModel(model)}>
                       <code className="text-xs block whitespace-nowrap">{model}</code>
                     </div>
                   ))}

@@ -1,6 +1,10 @@
 import { ChatExchange } from "@prisma/client";
 import { ChatMessage, ChatResponse } from "./types";
 
+// Number of digits after the decimal point to show
+// The lowest cost of a single token is $0.002 / 1000 = $0.000002
+export const FRACTION_DIGITS = 6;
+
 export function formatDate(date: Date): string {  
     if (date == null) {
       return "<Date is null>";

@@ -41,7 +41,8 @@ cp nextjs-app/.env.example nextjs-app/.env
 4. Start the `tokmon beam` stack (wraps docker-compose)
 
 ```bash
-python3 tool.py up
+$ python3 tool.py build # run this after pulling a new version of this repo
+$ python3 tool.py up
 ```
 
 5. Head to `localhost:9000` in your browser
@@ -53,7 +54,7 @@ Setup the tokmon beam stack as described above, and then:
 
 1. Run the `tokmon beam` server if it's not already running:
 
-```console
+```bash
 $ cd /path/to/local/repo/
 $ python3 tool.py up
 ```

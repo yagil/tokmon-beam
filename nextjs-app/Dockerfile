@@ -22,5 +22,8 @@ COPY . .
 # Expose the port the app will run on
 EXPOSE ${BEAM_SERVER_PORT}
 
+# Build the application
+RUN npm run build
+
 # Start the application
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]

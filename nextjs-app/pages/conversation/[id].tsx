@@ -5,7 +5,7 @@ import * as React from 'react';
 import { ChatExchange, TokenUsageSummary } from '@prisma/client';
 import { getAllChatExchanges, getUsageSummary } from '@/lib/helpers';
 import { ChatMessage, ChatRequest, ChatResponse, PricingData } from '@/lib/types';
-import { formatDate, colorForModel } from '@/lib/utils';
+import { formatDate, colorForModel, FRACTION_DIGITS } from '@/lib/utils';
 
 export async function getServerSideProps(context: any) {
   const wssPort = Number(process.env.WSS_PORT);
@@ -33,7 +33,10 @@ function UsageSummaryTable({ summary }: { summary: TokenUsageSummary }) {
   const { total_tokens, total_prompt_tokens, total_completion_tokens } = total_usage as { total_tokens: number, total_prompt_tokens: number, total_completion_tokens: number};
 
   // Avoid hydration mismatch
-  const [lastUpdated, setLastUpdated] = useState<string>(formatDate(summary.updated_at));
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  useEffect(() => {
+    setLastUpdated(formatDate(summary.updated_at));
+  }, [summary.updated_at]);
 
   return (
     <div className="space-y-5">      
@@ -41,19 +44,19 @@ function UsageSummaryTable({ summary }: { summary: TokenUsageSummary }) {
         <thead>
           <tr className="bg-gray-100 text-center">
             <th className="border p-2 whitespace-nowrap w-1 text-left">Last update</th>
-            <th className="border p-2">Total cost</th>
-            <th className="border p-2">Total overall tokens</th>
             <th className="border p-2">Total <code className="bg-indigo-400/20 px-1 py-0.5 rounded-md">prompt</code> tokens</th>
             <th className="border p-2">Total <code className="bg-yellow-400/20 px-1 py-0.5 rounded-md">completion</code> tokens</th>
             <th className="border p-2">Models</th>
+            <th className="border p-2">Total overall tokens</th>
+            <th className="border p-2">Total cost</th>
             
           </tr>
         </thead>
         <tbody className="text-center">
           <tr id="summary">
             <td className="border p-2 whitespace-nowrap w-1/12">{lastUpdated}</td>
-            <td className="border p-2 font-medium bg-blue-200/20">${total_cost}</td>
-            <td className="border p-2 font-medium bg-emerald-200/20">{total_tokens}</td>
+            
+            
             <td className="border p-2">{total_prompt_tokens}</td>
             <td className="border p-2">{total_completion_tokens}</td>
             <td className="border p-2 space-y-2">
@@ -63,7 +66,8 @@ function UsageSummaryTable({ summary }: { summary: TokenUsageSummary }) {
                 </div>
               ))}
             </td>        
-            
+            <td className="border p-2 font-medium bg-emerald-200/20">{total_tokens}</td>
+            <td className="border p-2 font-medium bg-blue-200/20">${total_cost.toFixed(FRACTION_DIGITS)}</td>
             
           </tr>
         </tbody>
@@ -120,12 +124,14 @@ function ChatExchangeStatsRow({ exchange, summary }: { exchange: ChatExchange, s
 
   const RequestView = ({request } : {request: ChatRequest}) => {
     return ( 
-      <div className="space-y-1 ">
+      <div className="space-y-1">
+        
         <div className="px-2 py-2 text-gray-500 bg-gray-100/60 border-b flex flex-row">
           <p className="text-xs font-medium sticky top-0">Total <b>{request.messages.length} messages</b> in this request body</p>
-          {/* <p className="text-xs font-base ml-auto opacity-60">scroll to read</p> */}
+          <p className="text-xs font-base ml-auto opacity-60">scrollable</p>
         </div>
-        <div className="h-32 overflow-y-auto space-y-2 p-2 ">
+        
+        <div className="h-32 overflow-y-auto space-y-2 p-2">
           { request.messages.map((message, index) => (
           <div key={index}>{getStyleMessage(message, "inline-block")}</div>
           )) } 
@@ -170,10 +176,6 @@ function ChatExchangeStatsRow({ exchange, summary }: { exchange: ChatExchange, s
   const timestampRaw = exchange.timestamp.toString();
   const formattedDate = formatDate(exchange.timestamp);
   const costSummary = calculateCostSummary();
-
-  // Number of digits after the decimal point to show
-  // The lowest cost of a single token is $0.002 / 1000 = $0.000002
-  const fractionDigits = 6;
   
   return (
     <tr key={exchange.id} className="even:bg-gray-200/20" id={"exchange-row-"+exchange.id}>
@@ -181,11 +183,11 @@ function ChatExchangeStatsRow({ exchange, summary }: { exchange: ChatExchange, s
         {formattedDate}
       </td>
 
-      <td className="border  p-0 lg:w-[28%] align-top ">
+      <td className="border p-0 lg:w-[28%] align-top">
         <RequestView request={exchange.request as ChatRequest} />
       </td>
 
-      <td className="border  p-2 align-top">
+      <td className="border p-2">
         <ResponseView response={exchange.response as ChatResponse} />
       </td>
       
@@ -197,15 +199,15 @@ function ChatExchangeStatsRow({ exchange, summary }: { exchange: ChatExchange, s
       
       <td className="border  p-2 whitespace-nowrap text-center">
         {usage.prompt_tokens}
-        {" "}<span className="text-gray-400">(${ costSummary.prompt.toFixed(fractionDigits) })</span>
+        {" "}<span className="text-gray-400">(${ costSummary.prompt.toFixed(FRACTION_DIGITS) })</span>
       </td>
       <td className="border  p-2 whitespace-nowrap text-center">
         {usage.completion_tokens}
-        {" "}<span className="text-gray-400">(${ costSummary.completion.toFixed(fractionDigits) })</span>
+        {" "}<span className="text-gray-400">(${ costSummary.completion.toFixed(FRACTION_DIGITS) })</span>
         
       </td>
       <td className="border  p-2 text-center">
-        <p className="font-medium">${ costSummary.total.toFixed(fractionDigits) }</p>
+        <p className="font-medium">${ costSummary.total.toFixed(FRACTION_DIGITS) }</p>
       </td>
 
       <td className="border  p-2 text-center">
@@ -353,7 +355,7 @@ export default function Conversation({ wssPort, storedExchanges, storedSummary }
           <a className="underline" href="/" > ← All Logs</a>
           <span className="flex flex-row gap-x-2 whitespace-nowrap ml-2"> / <pre>{id}</pre></span>
         </div>
-        <InfoActionBar summary={summary} />
+        { summary && <InfoActionBar summary={summary} /> }
       </div>
 
       <div className="px-5 space-y-10 pb-20">
@@ -371,7 +373,8 @@ export default function Conversation({ wssPort, storedExchanges, storedSummary }
             
             || 
             <div>
-              No data for for this converation ID. Double check the URL.
+              <p>No data for for this converation ID.</p>
+              <p>Double check the URL.</p>
             </div>}
         {/* </div> */}
         
