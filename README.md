@@ -16,7 +16,7 @@ If you're developing apps, websites, or scripts that make calls to the OpenAI AP
 
 ## Demo
 <div align="center">
-  <video src="https://user-images.githubusercontent.com/3611042/234463513-d7a0c074-21a7-426e-a547-2a2f0fba5105.mp4" />
+  <video src="https://user-images.githubusercontent.com/3611042/234966908-d79a4cf2-bb35-4156-8eb5-f2bcc7b5bd3e.mp4" />
 </div>
 
 ## Installation
